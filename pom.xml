@@ -12,6 +12,7 @@
 <!--        <module>config-server</module>-->
 <!--        <module>some other service</module>-->
         <module>restapi</module>
+        <module>gateway</module>
     </modules>
 
     <dependencyManagement>

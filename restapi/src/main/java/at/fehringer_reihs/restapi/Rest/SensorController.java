@@ -86,4 +86,8 @@ public class SensorController {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
+    @GetMapping("/test")
+    public ResponseEntity<String> testEndpoint() {
+        return new ResponseEntity<>("Hello here is your sensor endpoint", HttpStatus.ACCEPTED);
+    }
 }
