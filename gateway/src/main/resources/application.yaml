@@ -1,0 +1,17 @@
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: sensor-test-route
+#         environment variable if we want to change it
+          uri: ${SENSOR_TEST_ROUTE_URI:http://localhost:8081}
+          predicates:
+            - Path=/sensors/test/**
+        - id: measurement-test-route
+          uri: ${MEASUREMENT_TEST_ROUTE_URI:http://localhost:8081}
+          predicates:
+            - Path=/measurements/test/**
+#         if we want to change the URI
+#         filter:
+#           - PrefixPath=/api
