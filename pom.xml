@@ -8,10 +8,10 @@
     <packaging>pom</packaging>
 
     <modules>
-<!--        <module>config-server</module>-->
         <module>restapi</module>
         <module>gateway</module>
         <module>service_registry</module>
+        <module>config_server</module>
     </modules>
 
     <dependencyManagement>

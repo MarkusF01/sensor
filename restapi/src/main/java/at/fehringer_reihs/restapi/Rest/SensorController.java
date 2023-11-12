@@ -8,6 +8,7 @@ import at.fehringer_reihs.restapi.Service.SensorService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,9 @@ public class SensorController {
 
     private SensorService sensorService;
     private ModelMapper modelMapper;
+
+    @Value("${test.testtext}")
+    private String text;
 
     @Autowired
     public SensorController(SensorService sensorService, ModelMapper modelMapper) {
@@ -88,6 +92,9 @@ public class SensorController {
     }
     @GetMapping("/test")
     public ResponseEntity<String> testEndpoint() {
-        return new ResponseEntity<>("Hello here is your sensor endpoint", HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(
+                "Hello here is your sensor endpoint and test.textext from config server is: "+text,
+                HttpStatus.ACCEPTED
+        );
     }
 }
