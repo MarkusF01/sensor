@@ -12,7 +12,7 @@ import java.util.List;
 @Getter @Setter
 public class Sensor {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long sensorId;
     private String name;
     private String location;

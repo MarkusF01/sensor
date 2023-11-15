@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter @Setter
 public class SensorDto {
 
-    private long id;
+    private long sensorId;
     private String name;
     private String location;
     private boolean active;
@@ -15,8 +15,8 @@ public class SensorDto {
     public SensorDto() {
     }
 
-    public SensorDto(long id, String name, String location, boolean active, SensorType type) {
-        this.id = id;
+    public SensorDto(long sensorId, String name, String location, boolean active, SensorType type) {
+        this.sensorId = sensorId;
         this.name = name;
         this.location = location;
         this.active = active;

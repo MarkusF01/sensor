@@ -37,6 +37,7 @@ public class SensorController {
     //TODO response objects - what kind
     @PostMapping
     public ResponseEntity<SensorDto> createSensor(@RequestBody SensorDto sensorDto) {
+        System.out.println("Received SensorDTO" + sensorDto);
         Sensor createdSensor = sensorService.createSensor(modelMapper.map(sensorDto, Sensor.class));
         SensorDto mappedSensor = modelMapper.map(createdSensor, SensorDto.class);
         return new ResponseEntity<>(mappedSensor, HttpStatus.CREATED);
