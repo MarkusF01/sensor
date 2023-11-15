@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter @Setter
 public class Measurement {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long measurementId;
     private LocalDateTime timestamp;
     private double temperature;

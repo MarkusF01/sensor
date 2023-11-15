@@ -7,11 +7,11 @@ spring:
 #         environment variable if we want to change it
           uri: ${SENSOR_TEST_ROUTE_URI:http://localhost:8083}
           predicates:
-            - Path=/sensors/test/**
+            - Path=/sensors/**
         - id: measurement-test-route
           uri: ${MEASUREMENT_TEST_ROUTE_URI:http://localhost:8081}
           predicates:
-            - Path=/measurements/test/**
+            - Path=/measurements/**
 #         if we want to change the URI
 #         filter:
 #           - PrefixPath=/api
