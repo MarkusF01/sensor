@@ -33,6 +33,10 @@ public class SensorController {
 
     private SensorService sensorService;
     private ModelMapper modelMapper;
+    private int numberRequests = 0;
+
+    @Value("${server.port}")
+    private String port;
 
     @Value("${test.testtext}")
     private String text;
@@ -157,8 +161,9 @@ public class SensorController {
     })
     @GetMapping("/test")
     public ResponseEntity<String> testEndpoint() {
+        System.out.println("This is my "+ ++numberRequests +". request!");
         return new ResponseEntity<>(
-                "Hello here is your sensor endpoint and test.textext from config server is: " + text,
+                "Hello here is your sensor endpoint from port: "+port+", and test.txt from config server is: " + text,
                 HttpStatus.ACCEPTED
         );
     }
