@@ -1,0 +1,32 @@
+server:
+  port: 8080
+
+config-server:
+  route: localhost:8888
+
+service-registry:
+  route: localhost:8761
+
+spring:
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:mysql://mysql-3b-fh-41c4.a.aivencloud.com:20557/defaultdb?sslMode=REQUIRED
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: avnadmin
+    password: AVNS_oLeNCKj9lV4WKoo4itV
+  application:
+    name: rest-api
+  config:
+    import: "optional:configserver:http://root:test@${config-server.route}"
+
+springdoc:
+  api-docs:
+    path: /api-docs
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${service-registry.route}/eureka/
