@@ -1,0 +1,62 @@
+version: '3'
+services:
+  service-registry:
+    image: service-registry
+    ports:
+      - "${SERVICE_REGISTRY_PORT}:${SERVICE_REGISTRY_PORT}"
+    environment:
+      - server.port:${SERVICE_REGISTRY_PORT}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${SERVICE_REGISTRY_PORT}/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    build:
+      context: ./service_registry
+      dockerfile: ../Dockerfile
+
+  config-server:
+    image: config-server
+    ports:
+      - "${CONFIG_SERVER_PORT}:${CONFIG_SERVER_PORT}"
+    environment:
+      - server.port:${CONFIG_SERVER_PORT}
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:${CONFIG_SERVER_PORT}/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    build:
+      context: ./config_server
+      dockerfile: ../Dockerfile
+
+  api-gateway:
+    image: api-gateway
+    ports:
+      - "${API_GATEWAY_PORT}:${API_GATEWAY_PORT}"
+    environment:
+      - service-registry.route=service-registry:${SERVICE_REGISTRY_PORT}
+      - server.port:${API_GATEWAY_PORT}
+    depends_on:
+      service-registry:
+        condition: service_healthy
+    build:
+      context: ./gateway
+      dockerfile: ../Dockerfile
+
+  rest-api:
+    image: rest-api
+    ports:
+      - "${REST_API_PORT}"
+    environment:
+      - service-registry.route=service-registry:${SERVICE_REGISTRY_PORT}
+      - config-server.route=config-server:${CONFIG_SERVER_PORT}
+      - server.port:${REST_API_PORT}
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    build:
+      context: ./restapi
+      dockerfile: ../Dockerfile
