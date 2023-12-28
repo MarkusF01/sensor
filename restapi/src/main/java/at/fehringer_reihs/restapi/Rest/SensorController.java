@@ -4,6 +4,7 @@ import at.fehringer_reihs.restapi.Repository.model.Measurement;
 import at.fehringer_reihs.restapi.Repository.model.Sensor;
 import at.fehringer_reihs.restapi.Rest.model.MeasurementDto;
 import at.fehringer_reihs.restapi.Rest.model.SensorDto;
+import at.fehringer_reihs.restapi.Rest.model.SensorOverviewDto;
 import at.fehringer_reihs.restapi.Service.SensorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,16 +54,14 @@ public class SensorController {
             @ApiResponse(responseCode = "200", description = "The sensor was found", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = SensorDto.class))
             }),
-            @ApiResponse(responseCode = "400", description = "An error occurred while creating the sensor",
+            @ApiResponse(responseCode = "500", description = "An error occurred while creating the sensor",
                     content = @Content),
     })
     @PostMapping
-    //TODO response objects - what kind
-    public ResponseEntity<SensorDto> createSensor(@Parameter(description = "The Sensor to create") @RequestBody SensorDto sensorDto) {
-        System.out.println("Received SensorDTO" + sensorDto);
+    public ResponseEntity<SensorDto> createSensor(@Parameter(description = "The Sensor to create") @RequestBody @Valid SensorDto sensorDto) {
         Sensor createdSensor = sensorService.createSensor(modelMapper.map(sensorDto, Sensor.class));
         SensorDto mappedSensor = modelMapper.map(createdSensor, SensorDto.class);
-        return new ResponseEntity<>(mappedSensor, HttpStatus.CREATED);
+        return ResponseEntity.ok(mappedSensor);
     }
 
     @Operation(summary = "Get a sensor by id", description = "Get a specific sensor by id that is saved in the database.")
@@ -69,8 +69,6 @@ public class SensorController {
             @ApiResponse(responseCode = "200", description = "The sensor was found", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = SensorDto.class))
             }),
-            @ApiResponse(responseCode = "400", description = "Invalid id was given",
-                    content = @Content),
             @ApiResponse(responseCode = "404", description = "No sensor was found with the given id",
                     content = @Content)})
     @GetMapping("/{id}")
@@ -80,7 +78,7 @@ public class SensorController {
             SensorDto mappedSensor = modelMapper.map(foundSensor.get(), SensorDto.class);
             return new ResponseEntity<>(mappedSensor, HttpStatus.ACCEPTED);
         } else {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -89,21 +87,22 @@ public class SensorController {
             @ApiResponse(responseCode = "200", description = "All saved sensor successfully returned", content = {
                     @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = SensorDto.class)))
             }),
-            @ApiResponse(responseCode = "400", description = "An error occurred while creating the sensor",
+            @ApiResponse(responseCode = "500", description = "An error occurred while creating the sensor",
                     content = @Content),
     })
     @GetMapping
-    public ResponseEntity<List<SensorDto>> getSensors() {
-        Type listType = new TypeToken<List<SensorDto>>() {
+    public ResponseEntity<List<SensorOverviewDto>> getSensors() {
+        Type listType = new TypeToken<List<SensorOverviewDto>>() {
         }.getType();
-        List<SensorDto> mappedSensors = modelMapper.map(sensorService.getSensors(), listType);
-        return new ResponseEntity<>(mappedSensors, HttpStatus.ACCEPTED);
+        List<Sensor> sensors = sensorService.getSensors();
+        List<SensorOverviewDto> mappedSensors = modelMapper.map(sensors, listType);
+        return ResponseEntity.ok(mappedSensors);
     }
 
     @Operation(summary = "Delete a sensor", description = "Delete a specific sensor that is saved in the database.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The sensor was deleted", content = @Content),
-            @ApiResponse(responseCode = "400", description = "An error occurred while deleting the sensor", content = @Content),
+            @ApiResponse(responseCode = "500", description = "An error occurred while deleting the sensor", content = @Content),
     })
     @DeleteMapping("/{id}")
     public void deleteSensor(@PathVariable Long id) {
@@ -115,7 +114,7 @@ public class SensorController {
             @ApiResponse(responseCode = "200", description = "The measurement was added successfully", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = SensorDto.class))
             }),
-            @ApiResponse(responseCode = "400", description = "An error occurred while adding the measurement",
+            @ApiResponse(responseCode = "500", description = "An error occurred while adding the measurement",
                     content = @Content),
     })
     @PostMapping("/{id}/measurements")
@@ -128,20 +127,20 @@ public class SensorController {
             SensorDto mappedSensor = modelMapper.map(updatedSensor, SensorDto.class);
             return new ResponseEntity<>(mappedSensor, HttpStatus.ACCEPTED);
         } else {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
-    @Operation(summary = "Get measurements from a sensor", description = "Get all measurements from the sensor that are saved in the database.")
+    @Operation(summary = "Get measurements from a sensor", description = "Get all measurements from a sensor that are saved in the database.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "All measurements from the sensors were returned successfully", content = {
                     @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = MeasurementDto.class)))
             }),
-            @ApiResponse(responseCode = "400", description = "An error occurred getting the measurements from the sensor",
-                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "No Sensor was found with the given id", content = @Content),
+            @ApiResponse(responseCode = "500", description = "An error occurred getting the measurements from the sensor", content = @Content),
     })
     @GetMapping("/{id}/measurements")
-    public ResponseEntity<List<MeasurementDto>> getMeasurementFromSensor(@Parameter(description = "Sensor id to retrieve the measurements by") @PathVariable Long id) {
+    public ResponseEntity<List<MeasurementDto>> getMeasurementsFromSensor(@Parameter(description = "Sensor id to retrieve the measurements by") @PathVariable Long id) {
         Optional<Sensor> foundSensor = sensorService.getSensor(id);
         if (foundSensor.isPresent()) {
             List<Measurement> measurements = foundSensor.get().getMeasurements();
@@ -150,7 +149,7 @@ public class SensorController {
             List<MeasurementDto> mappedMeasurements = modelMapper.map(measurements, listType);
             return new ResponseEntity<>(mappedMeasurements, HttpStatus.ACCEPTED);
         } else {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 

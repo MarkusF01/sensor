@@ -3,18 +3,15 @@ package at.fehringer_reihs.restapi.Rest.model;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter @Setter
-public class SensorDto {
+public class SensorOverviewDto {
 
     private long sensorId;
     private String name;
     private String location;
     private boolean active;
     private SensorType type;
-    private List<MeasurementDto> measurements;
 
-    public SensorDto() {
+    public SensorOverviewDto() {
     }
 }
