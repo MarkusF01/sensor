@@ -42,6 +42,8 @@ public class SensorController {
 
     @Value("${test.testtext}")
     private String text;
+    @Value("${test.rest-test}")
+    private String restText;
 
     @Autowired
     public SensorController(SensorService sensorService, ModelMapper modelMapper) {
@@ -160,9 +162,9 @@ public class SensorController {
     })
     @GetMapping("/test")
     public ResponseEntity<String> testEndpoint() {
-        System.out.println("This is my "+ ++numberRequests +". request!");
+        System.out.println("This is my " + ++numberRequests + ". request!");
         return new ResponseEntity<>(
-                "Hello here is your sensor endpoint from port: "+port+", and test.txt from config server is: " + text,
+                "Here is your sensor endpoint from port: " + port + ", and --testtext-- from config server is: " + text + ", and --rest-test-- is: " + restText,
                 HttpStatus.ACCEPTED
         );
     }

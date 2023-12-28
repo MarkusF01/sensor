@@ -1,14 +1,5 @@
-server:
-  port: 8761
-
-eureka:
-  client:
-    register-with-eureka: false
-    fetch-registry: false
-
-logging:
-  level:
-    com:
-      netflix:
-        eureka: OFF
-        discovery: OFF
+spring:
+  config:
+    import: configserver:http://root:test@${config-server.route:localhost:8888}
+  application:
+    name: service-registry

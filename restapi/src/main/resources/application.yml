@@ -1,32 +1,5 @@
-server:
-  port: 8088
-
-config-server:
-  route: localhost:8888
-
-service-registry:
-  route: localhost:8761
-
 spring:
   config:
-    import: configserver:http://root:test@${config-server.route}
-  jpa:
-    database-platform: org.hibernate.dialect.MySQLDialect
-    hibernate:
-      ddl-auto: update
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    import: configserver:http://root:test@${config-server.route:localhost:8888}
   application:
     name: rest-api
-
-springdoc:
-  api-docs:
-    path: /api-docs
-  swagger-ui:
-    enabled: false
-
-
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://${service-registry.route}/eureka/
