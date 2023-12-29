@@ -13,12 +13,14 @@ This structure not only simplifies navigation but also enhances modularity and m
 To begin with this project, ensure the following system requirements are met:
 
 - Docker must be installed and running on your machine. This is crucial for containerization and ensuring a consistent environment across different setups.
+- Maven is needed for building the project.
 
 Once Docker is set up, follow these steps:
 
 1. Clone the project repository to your local machine.
-2. To launch the services, execute the `start_backend.bat` file. This script initiates all the necessary Docker containers and sets up the microservices environment.
-3. When you need to stop the services, simply run the `stop_backend.bat` file. This will gracefully shut down all the running containers and clean up the environment.
+2. Build the entire project using Maven. In the project's root directory, execute the command: `mvn clean install`. This will compile the source code, run tests, and package the application.
+3. To launch the services, execute the `start_backend.bat` file. This script initiates all the necessary Docker containers and sets up the microservices environment.
+4. When you need to stop the services, simply run the `stop_backend.bat` file. This will gracefully shut down all the running containers and clean up the environment.
 
 ## Usage
 

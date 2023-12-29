@@ -30,6 +30,6 @@ public class MeasurementController {
 
     @GetMapping("/test")
     public ResponseEntity<String> testEndpoint() {
-        return new ResponseEntity<>("Hello here is your measurment endpoint", HttpStatus.ACCEPTED);
+        return new ResponseEntity<>("Hello here is your measurement endpoint", HttpStatus.ACCEPTED);
     }
 }
