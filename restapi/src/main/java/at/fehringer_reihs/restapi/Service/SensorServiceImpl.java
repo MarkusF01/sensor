@@ -1,5 +1,6 @@
 package at.fehringer_reihs.restapi.Service;
 
+import at.fehringer_reihs.restapi.Repository.MeasurementRepository;
 import at.fehringer_reihs.restapi.Repository.SensorRepository;
 import at.fehringer_reihs.restapi.Repository.model.Measurement;
 import at.fehringer_reihs.restapi.Repository.model.Sensor;
@@ -15,6 +16,8 @@ public class SensorServiceImpl implements SensorService {
 
     @Autowired
     private SensorRepository sensorRepository;
+    @Autowired
+    private MeasurementRepository measurementRepository;
 
     @Override
     public List<Sensor> getSensors() {
@@ -41,7 +44,7 @@ public class SensorServiceImpl implements SensorService {
     @Override
     public Sensor addMeasurementToSensor(Measurement measurement, Sensor sensor) {
         measurement.setSensor(sensor);
-        sensor.getMeasurements().add(measurement);
+        sensor.getMeasurements().add(measurementRepository.save(measurement));
         return sensorRepository.save(sensor);
     }
 }
