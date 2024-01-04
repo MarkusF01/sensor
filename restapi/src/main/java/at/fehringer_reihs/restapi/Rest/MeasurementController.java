@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +25,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/measurements")
+@Tag(name = "Measurement-Controller", description = "Controller responsible for handling measurement operations")
 public class MeasurementController {
-    private MeasurementService measurementService;
-    private ModelMapper modelMapper;
+    private final MeasurementService measurementService;
+    private final ModelMapper modelMapper;
 
     @Autowired
     public MeasurementController(MeasurementService measurementService, ModelMapper modelMapper){
@@ -51,9 +53,16 @@ public class MeasurementController {
         return ResponseEntity.ok(mappedMeasurements);
     }
 
-
+    @Operation(summary = "Get a measurement", description = "Get a measurement by id.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Measurement found", content = {
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = MeasurementDto.class)))
+            }),
+            @ApiResponse(responseCode = "500", description = "An error occurred while getting the measurement",
+                    content = @Content),
+    })
     @GetMapping("/{id}")
-    public MeasurementDto getMeasurementFromSensor(@PathVariable Long id){
+    public MeasurementDto getMeasurementById(@PathVariable Long id){
         return modelMapper.map(measurementService.getMeasurement(id), MeasurementDto.class);
     }
 

@@ -1,5 +1,6 @@
 package at.fehringer_reihs.restapi.Service;
 
+import at.fehringer_reihs.restapi.Repository.MeasurementRepository;
 import at.fehringer_reihs.restapi.Repository.SensorRepository;
 import at.fehringer_reihs.restapi.Repository.model.Measurement;
 import at.fehringer_reihs.restapi.Repository.model.Sensor;
@@ -18,6 +19,8 @@ import static org.mockito.Mockito.*;
 public class SensorServiceImplTest {
     @Mock
     private SensorRepository sensorRepository;
+    @Mock
+    private MeasurementRepository measurementRepository;
     @InjectMocks
     private SensorServiceImpl sensorService;
 
@@ -75,6 +78,7 @@ public class SensorServiceImplTest {
         Measurement measurement = new Measurement();
 
         when(sensorRepository.save(sensor)).thenReturn(sensor);
+        when(measurementRepository.save(measurement)).thenReturn(measurement);
 
         Sensor updatedSensor = sensorService.addMeasurementToSensor(measurement, sensor);
 
