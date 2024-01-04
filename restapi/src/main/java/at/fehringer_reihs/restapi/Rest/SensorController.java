@@ -51,9 +51,9 @@ public class SensorController {
         this.modelMapper = modelMapper;
     }
 
-    @Operation(summary = "Create a sensor", description = "A sensor is created with the given attributes and is saved in the database.")
+    @Operation(summary = "Create a sensor", description = "A sensor is created with the given attributes.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "The sensor was found", content = {
+            @ApiResponse(responseCode = "200", description = "The sensor was successfully created", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = SensorDto.class))
             }),
             @ApiResponse(responseCode = "500", description = "An error occurred while creating the sensor",
@@ -66,7 +66,7 @@ public class SensorController {
         return ResponseEntity.ok(mappedSensor);
     }
 
-    @Operation(summary = "Get a sensor by id", description = "Get a specific sensor by id that is saved in the database.")
+    @Operation(summary = "Get a sensor by id", description = "Get a specific sensor by id. If there was no sensor found with the given id, a 404 is returned.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The sensor was found", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = SensorDto.class))
@@ -89,7 +89,7 @@ public class SensorController {
             @ApiResponse(responseCode = "200", description = "All saved sensor successfully returned", content = {
                     @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = SensorDto.class)))
             }),
-            @ApiResponse(responseCode = "500", description = "An error occurred while creating the sensor",
+            @ApiResponse(responseCode = "500", description = "An error occurred while getting the sensors",
                     content = @Content),
     })
     @GetMapping
@@ -101,14 +101,43 @@ public class SensorController {
         return ResponseEntity.ok(mappedSensors);
     }
 
-    @Operation(summary = "Delete a sensor", description = "Delete a specific sensor that is saved in the database.")
+    @Operation(summary = "Delete a sensor", description = "Delete a specific sensor by id.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The sensor was deleted", content = @Content),
             @ApiResponse(responseCode = "500", description = "An error occurred while deleting the sensor", content = @Content),
     })
     @DeleteMapping("/{id}")
-    public void deleteSensor(@PathVariable Long id) {
+    public void deleteSensor(@Parameter(description = "The id of the sensor to delete") @PathVariable Long id) {
         sensorService.deleteSensor(id);
+    }
+
+    @Operation(summary = "Update a sensor", description = "A sensor is updated with the given attributes.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "The sensor was successfully updated", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = SensorDto.class))
+            }),
+            @ApiResponse(responseCode = "404", description = "No sensor was found with the given id",
+                    content = @Content),
+            @ApiResponse(responseCode = "400", description = "The given sensor id from the path does not match the id in the body",
+                    content = @Content),
+            @ApiResponse(responseCode = "500", description = "An error occurred while updating the sensor",
+                    content = @Content),
+    })
+    @PutMapping("/{id}")
+    public ResponseEntity<SensorDto> updateSensor(
+            @Parameter(description = "The is of the sensor to update") @PathVariable Long sensorId,
+            @Parameter(description = "The Sensor to update") @RequestBody @Valid SensorDto sensorDto) {
+        if(sensorId.equals(sensorDto.getSensorId())) {
+            Optional<Sensor> updated = sensorService.updateSensor(modelMapper.map(sensorDto, Sensor.class));
+            if(updated.isPresent()){
+                SensorDto mappedSensor = modelMapper.map(updated.get(), SensorDto.class);
+                return ResponseEntity.ok(mappedSensor);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @Operation(summary = "Add a measurement", description = "Add a measurement to (from) a sensor.")

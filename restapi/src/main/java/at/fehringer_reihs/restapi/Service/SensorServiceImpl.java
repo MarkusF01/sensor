@@ -47,4 +47,14 @@ public class SensorServiceImpl implements SensorService {
         sensor.getMeasurements().add(measurementRepository.save(measurement));
         return sensorRepository.save(sensor);
     }
+
+    @Override
+    public Optional<Sensor> updateSensor(Sensor sensor) {
+        Optional<Sensor> found = sensorRepository.findById(sensor.getSensorId());
+        if(found.isPresent()) {
+            return Optional.of(sensorRepository.save(sensor));
+        } else {
+            return Optional.empty();
+        }
+    }
 }

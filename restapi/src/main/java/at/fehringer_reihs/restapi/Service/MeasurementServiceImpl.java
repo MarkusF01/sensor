@@ -26,4 +26,9 @@ public class MeasurementServiceImpl implements MeasurementService {
     public Optional<Measurement> getMeasurement(Long measurementId) {
         return measurementRepository.findById(measurementId);
     }
+
+    @Override
+    public void deleteMeasurement(Long measurementId) {
+        measurementRepository.deleteById(measurementId);
+    }
 }

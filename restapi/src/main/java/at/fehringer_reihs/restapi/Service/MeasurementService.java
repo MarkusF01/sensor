@@ -23,4 +23,11 @@ public interface MeasurementService {
      * @return the found measurement
      */
     Optional<Measurement> getMeasurement(Long measurementId);
+
+    /**
+     * Delete a measurement by id
+     *
+     * @param measurementId the id of the measurement
+     */
+    void deleteMeasurement(Long measurementId);
 }

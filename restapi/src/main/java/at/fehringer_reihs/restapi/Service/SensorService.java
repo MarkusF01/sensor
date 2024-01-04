@@ -48,4 +48,14 @@ public interface SensorService {
      * @return the sensor with the added measurement
      */
     Sensor addMeasurementToSensor(Measurement measurement, Sensor sensor);
+
+
+    /**
+     * Update a sensor
+     *
+     * @param sensor the sensor to update
+     * @return the updated sensor
+     */
+    Optional<Sensor> updateSensor(Sensor sensor);
+
 }
