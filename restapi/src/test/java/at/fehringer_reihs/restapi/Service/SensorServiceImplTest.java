@@ -9,6 +9,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.*;
 
@@ -27,14 +31,16 @@ public class SensorServiceImplTest {
 
     @Test
     public void testGetSensors() {
-        Iterable<Sensor> mockSensors = Arrays.asList(new Sensor(), new Sensor());
-        when(sensorRepository.findAll()).thenReturn(mockSensors);
+        List<Sensor> sensors = Arrays.asList(new Sensor(), new Sensor());
+        Pageable pageable = PageRequest.of(0, sensors.size());
+        Page<Sensor> sensorPage = new PageImpl<>(sensors, pageable, sensors.size());
+        when(sensorRepository.findAll(any())).thenReturn(sensorPage);
 
-        List<Sensor> sensors = sensorService.getSensors();
+        Page<Sensor> found = sensorService.getSensors(1, 10);
 
-        assertNotNull(sensors);
-        assertEquals(2, sensors.size());
-        verify(sensorRepository).findAll();
+        assertNotNull(found);
+        assertEquals(2, found.getSize());
+        verify(sensorRepository).findAll(any());
     }
 
     @Test

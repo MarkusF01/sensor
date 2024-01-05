@@ -2,20 +2,22 @@ package at.fehringer_reihs.restapi.Service;
 
 import at.fehringer_reihs.restapi.Repository.model.Measurement;
 import at.fehringer_reihs.restapi.Repository.model.Sensor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
 public interface SensorService {
 
     /**
-     * Get all sensors that are saved
+     * Get a specified page of sensors
      *
-     * @return all found sensors
+     * @param page the page to request
+     * @param size the size of the page
+     * @return found sensors
      */
-    List<Sensor> getSensors();
+    Page<Sensor> getSensors(int page, int size);
 
     /**
      * Get a sensor by id

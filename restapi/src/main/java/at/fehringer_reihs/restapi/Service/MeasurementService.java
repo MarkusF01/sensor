@@ -1,20 +1,20 @@
 package at.fehringer_reihs.restapi.Service;
 
 import at.fehringer_reihs.restapi.Repository.model.Measurement;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
 public interface MeasurementService {
 
     /**
-     * Get all saved measurements
+     * Get all saved measurements for a certain page
      *
      * @return the found measurements
      */
-    List<Measurement> getMeasurements();
+    Page<Measurement> getMeasurements(int page, int size);
 
     /**
      * Get Measurement by id

@@ -5,6 +5,7 @@ import at.fehringer_reihs.restapi.Repository.model.Sensor;
 import at.fehringer_reihs.restapi.Rest.model.MeasurementDto;
 import at.fehringer_reihs.restapi.Rest.model.SensorDto;
 import at.fehringer_reihs.restapi.Rest.model.SensorOverviewDto;
+import at.fehringer_reihs.restapi.Rest.model.PaginatedResponse;
 import at.fehringer_reihs.restapi.Service.SensorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,6 +20,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,8 +35,8 @@ import java.util.Optional;
 @Tag(name = "Sensor-Controller", description = "Controller responsible for handling all sensor operations")
 public class SensorController {
 
-    private SensorService sensorService;
-    private ModelMapper modelMapper;
+    private final SensorService sensorService;
+    private final ModelMapper modelMapper;
     private int numberRequests = 0;
 
     @Value("${server.port}")
@@ -74,7 +76,7 @@ public class SensorController {
             @ApiResponse(responseCode = "404", description = "No sensor was found with the given id",
                     content = @Content)})
     @GetMapping("/{id}")
-    public ResponseEntity<SensorDto> getSensor(@Parameter(description = "The id of the sensor", required = true) @PathVariable Long id) {
+    public ResponseEntity<SensorDto> getSensor(@Parameter(description = "The id of the sensor", required = true) @PathVariable("id") Long id) {
         Optional<Sensor> foundSensor = sensorService.getSensor(id);
         if (foundSensor.isPresent()) {
             SensorDto mappedSensor = modelMapper.map(foundSensor.get(), SensorDto.class);
@@ -84,21 +86,33 @@ public class SensorController {
         }
     }
 
-    @Operation(summary = "Get all sensors", description = "Get all sensor that are saved in the database.")
+    @Operation(summary = "Get all sensors in a paginated response", description = "Get all sensor, the response is paginated, the list of sensors varies with the given page size.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "All saved sensor successfully returned", content = {
-                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = SensorDto.class)))
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = PaginatedResponse.class)))
             }),
-            @ApiResponse(responseCode = "500", description = "An error occurred while getting the sensors",
-                    content = @Content),
+            @ApiResponse(responseCode = "400", description = "Query params page and size are needed"),
+            @ApiResponse(responseCode = "500", description = "An error occurred while getting the sensors"),
     })
     @GetMapping
-    public ResponseEntity<List<SensorOverviewDto>> getSensors() {
+    public ResponseEntity<PaginatedResponse<SensorOverviewDto>> getSensors(
+            @Parameter(description = "The current page to get data for") @RequestParam("page") Integer page,
+            @Parameter(description = "How much data should be displayed per page") @RequestParam("size") Integer pageSize) {
         Type listType = new TypeToken<List<SensorOverviewDto>>() {
         }.getType();
-        List<Sensor> sensors = sensorService.getSensors();
-        List<SensorOverviewDto> mappedSensors = modelMapper.map(sensors, listType);
-        return ResponseEntity.ok(mappedSensors);
+        if(pageSize == null || page == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        Page<Sensor> foundPage = sensorService.getSensors(page, pageSize);
+
+        PaginatedResponse sensorPageDto = PaginatedResponse.builder()
+                .pageSize(foundPage.getSize())
+                .totalResults(foundPage.getTotalElements())
+                .currentPage(foundPage.getNumber())
+                .content(modelMapper.map(foundPage.getContent(), listType))
+                .build();
+
+        return ResponseEntity.ok(sensorPageDto);
     }
 
     @Operation(summary = "Delete a sensor", description = "Delete a specific sensor by id.")
@@ -107,7 +121,7 @@ public class SensorController {
             @ApiResponse(responseCode = "500", description = "An error occurred while deleting the sensor", content = @Content),
     })
     @DeleteMapping("/{id}")
-    public void deleteSensor(@Parameter(description = "The id of the sensor to delete") @PathVariable Long id) {
+    public void deleteSensor(@Parameter(description = "The id of the sensor to delete") @PathVariable("id") Long id) {
         sensorService.deleteSensor(id);
     }
 
@@ -125,7 +139,7 @@ public class SensorController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<SensorDto> updateSensor(
-            @Parameter(description = "The is of the sensor to update") @PathVariable Long sensorId,
+            @Parameter(description = "The id of the sensor to update") @PathVariable("id") Long sensorId,
             @Parameter(description = "The Sensor to update") @RequestBody @Valid SensorDto sensorDto) {
         if(sensorId.equals(sensorDto.getSensorId())) {
             Optional<Sensor> updated = sensorService.updateSensor(modelMapper.map(sensorDto, Sensor.class));
@@ -149,7 +163,7 @@ public class SensorController {
                     content = @Content),
     })
     @PostMapping("/{id}/measurements")
-    public ResponseEntity<SensorDto> addMeasurementFromSensor(@Parameter(description = "The id of the sensor to add the measurement to") @PathVariable Long id,
+    public ResponseEntity<SensorDto> addMeasurementFromSensor(@Parameter(description = "The id of the sensor to add the measurement to") @PathVariable("id") Long id,
                                                               @Parameter(description = "The measurement to add") @RequestBody MeasurementDto measurementDto) {
         Optional<Sensor> foundSensor = sensorService.getSensor(id);
         if (foundSensor.isPresent()) {
@@ -171,7 +185,7 @@ public class SensorController {
             @ApiResponse(responseCode = "500", description = "An error occurred getting the measurements from the sensor", content = @Content),
     })
     @GetMapping("/{id}/measurements")
-    public ResponseEntity<List<MeasurementDto>> getMeasurementsFromSensor(@Parameter(description = "Sensor id to retrieve the measurements by") @PathVariable Long id) {
+    public ResponseEntity<List<MeasurementDto>> getMeasurementsFromSensor(@Parameter(description = "Sensor id to retrieve the measurements by") @PathVariable("id") Long id) {
         Optional<Sensor> foundSensor = sensorService.getSensor(id);
         if (foundSensor.isPresent()) {
             List<Measurement> measurements = foundSensor.get().getMeasurements();
