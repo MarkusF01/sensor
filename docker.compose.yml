@@ -2,8 +2,6 @@ version: '3'
 services:
   config-server:
     image: config-server
-    ports:
-      - "8888:8888"
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
       interval: 10s
@@ -15,8 +13,6 @@ services:
 
   service-registry:
     image: service-registry
-    ports:
-      - "8761:8761"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
       interval: 10s
@@ -47,8 +43,6 @@ services:
 
   rest-api:
     image: rest-api
-    ports:
-      - "8088"
     environment:
       - service-registry.route=service-registry:8761
       - config-server.route=config-server:8888
